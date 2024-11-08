@@ -10,21 +10,33 @@ import {
   StyleSheet,
   Image,
   ImageURISource,
-  ImageSourcePropType,
   Platform,
 } from 'react-native';
+import uuid from 'react-native-uuid';
+import { useState } from 'react';
 
 type Props = {
   isModalVisible: boolean;
   setIsModalVisible: React.Dispatch<React.SetStateAction<boolean>>;
-  setMapObjects: React.Dispatch<React.SetStateAction<MapObject[]>>;
+  mapObjects: Record<string, MapObject>;
+  setMapObjects: React.Dispatch<React.SetStateAction<Record<string, MapObject>>>;
 };
 
-export default function MapObjectSelectorModal({ isModalVisible, setIsModalVisible }: Props) {
-  const renderItem = ({ item }: { item: ImageURISource }) => {
-    <Pressable onPress={() => console.log('Pressed:', item)}>
-      <Image source={item} />
-    </Pressable>;
+export default function MapObjectSelectorModal({
+  isModalVisible,
+  setIsModalVisible,
+  mapObjects,
+  setMapObjects,
+}: Props) {
+  const [x, setX] = useState(0);
+  const handleSelectMapObject = (mapObjectImg: ImageURISource) => {
+    const mapObject = {
+      imageUri: mapObjectImg.uri || '',
+      x: x,
+      y: 0,
+    };
+    setX(x + 50);
+    setMapObjects({ ...mapObjects, [uuid.v4().toString()]: mapObject });
   };
 
   return (
@@ -46,15 +58,17 @@ export default function MapObjectSelectorModal({ isModalVisible, setIsModalVisib
         </View>
         <FlatList
           data={tileImages}
-          renderItem={({ item }: { item: ImageSourcePropType }) => (
-            <Image
-              source={item}
-              style={{ width: 50, height: 50, margin: 5 }}
-              resizeMode="contain"
-            />
-          )}
           keyExtractor={(_, index) => index.toString()}
           numColumns={10}
+          renderItem={({ item }: { item: ImageURISource }) => (
+            <Pressable onPress={() => handleSelectMapObject(item)}>
+              <Image
+                source={item}
+                style={{ width: 50, height: 50, margin: 5 }}
+                resizeMode="contain"
+              />
+            </Pressable>
+          )}
         />
       </View>
     </Modal>

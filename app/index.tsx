@@ -1,11 +1,18 @@
 import GridOverlay from '@/components/GridOverlay';
 import MapObjectSelectorModal from '@/components/MapObjectSelectorModal';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Image } from 'expo-image';
+import { useEffect, useState } from 'react';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface Map {
   name: string;
   backgroundColor: string;
+}
+
+export interface MapObject {
+  imageUri: string;
+  x: number;
+  y: number;
 }
 
 export default function Index() {
@@ -13,15 +20,37 @@ export default function Index() {
     name: 'Test Map',
     backgroundColor: '#94ad6c',
   });
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(true);
+  const [mapObjects, setMapObjects] = useState<Record<string, MapObject>>({});
+
+  useEffect(() => console.log(mapObjects), [mapObjects]);
+
+  const renderMapObjects = () =>
+    Object.entries(mapObjects).map(([id, mapObject]) => (
+      <Image
+        key={id}
+        source={{ uri: mapObject.imageUri }}
+        style={{
+          width: 50,
+          height: 50,
+          position: 'absolute',
+          left: mapObject.x,
+          top: mapObject.y,
+        }}
+      />
+    ));
 
   return (
     <View style={[styles.mapContainer, { backgroundColor: map?.backgroundColor || 'white' }]}>
       <GridOverlay />
 
+      {renderMapObjects()}
+
       <MapObjectSelectorModal
         isModalVisible={isModalVisible}
         setIsModalVisible={setIsModalVisible}
+        mapObjects={mapObjects}
+        setMapObjects={setMapObjects}
       />
 
       <Pressable style={styles.floatingButton} onPress={() => setIsModalVisible(true)}>
