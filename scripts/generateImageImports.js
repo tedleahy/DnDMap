@@ -8,11 +8,12 @@ const imageFiles = fs.readdirSync(imageDir).filter(file =>
   file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.jpeg')
 );
 
-const imports = imageFiles.map((file, index) => 
+const imports = imageFiles.map((file) => 
   `  require('@/assets/images/tiles/${file}'),`
 ).join('\n');
 
-const fileContent = `const tileImages = [\n${imports}\n];`;
+const fileContent = "import { type ImageSource } from 'expo-image';\n\n" +
+  `export const tileImages: ImageSource[] = [\n${imports}\n];`;
 
 fs.writeFileSync(outputFile, fileContent);
 

@@ -1,4 +1,6 @@
-export const tileImages = [
+import { type ImageSource } from 'expo-image';
+
+export const tileImages: ImageSource[] = [
   require('@/assets/images/tiles/FieldsTile_01.png'),
   require('@/assets/images/tiles/FieldsTile_02.png'),
   require('@/assets/images/tiles/FieldsTile_03.png'),
