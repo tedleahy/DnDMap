@@ -63,34 +63,4 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-
-  floatingButton: {
-    position: 'absolute',
-    width: 60,
-    height: 60,
-    alignItems: 'center',
-    justifyContent: 'center',
-    right: 50,
-    bottom: 50,
-    backgroundColor: '#F194FF',
-    borderRadius: 30,
-
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowRadius: 4,
-        shadowOpacity: 0.25,
-      },
-      android: {
-        elevation: 8,
-      },
-      web: {
-        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.25)',
-      },
-    }),
-  },
 });
