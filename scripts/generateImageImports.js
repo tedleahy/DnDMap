@@ -12,8 +12,7 @@ const imports = imageFiles.map((file) =>
   `  require('@/assets/images/tiles/${file}'),`
 ).join('\n');
 
-const fileContent = "import { type ImageSource } from 'expo-image';\n\n" +
-  `export const tileImages: ImageSource[] = [\n${imports}\n];`;
+const fileContent = `export const tileImages: number[] = [\n${imports}\n];`;
 
 fs.writeFileSync(outputFile, fileContent);
 
