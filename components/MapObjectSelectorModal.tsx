@@ -1,19 +1,10 @@
-import { FontAwesome } from '@expo/vector-icons';
-import { MapObject } from '@/app';
+import { MapObject } from '@/utils/types';
 import { tileImages } from '@/utils/tileImages';
-import {
-  View,
-  Text,
-  Pressable,
-  FlatList,
-  Modal,
-  StyleSheet,
-  Image,
-  ImageURISource,
-  Platform,
-} from 'react-native';
+import { Pressable, Image } from 'react-native';
 import uuid from 'react-native-uuid';
 import { useState } from 'react';
+import { X, Plus } from '@tamagui/lucide-icons';
+import { Adapt, Button, Dialog, Sheet, Unspaced, XStack } from 'tamagui';
 
 type Props = {
   isModalVisible: boolean;
@@ -29,99 +20,105 @@ export default function MapObjectSelectorModal({
   setMapObjects,
 }: Props) {
   const [x, setX] = useState(0);
-  const handleSelectMapObject = (mapObjectImg: ImageURISource) => {
-    const mapObject = {
-      imageUri: mapObjectImg.uri || '',
-      x: x,
-      y: 0,
-    };
+  const handleSelectMapObject = (id: string, mapObject: MapObject) => {
     setX(x + 50);
-    setMapObjects({ ...mapObjects, [uuid.v4().toString()]: mapObject });
+    setMapObjects({ ...mapObjects, [id]: mapObject });
   };
 
   return (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={isModalVisible}
-      onRequestClose={() => {
-        setIsModalVisible(!isModalVisible);
-      }}
-      statusBarTranslucent={true}
-    >
-      <View style={styles.modalView}>
-        <View style={styles.modalHeader}>
-          <Pressable style={styles.closeButton} onPress={() => setIsModalVisible(!isModalVisible)}>
-            <FontAwesome name="close" size={24} color="black" />
-          </Pressable>
-          <Text style={styles.modalTitle}>Select Map Object</Text>
-        </View>
-        <FlatList
-          data={tileImages}
-          keyExtractor={(_, index) => index.toString()}
-          numColumns={10}
-          renderItem={({ item }: { item: ImageURISource }) => (
-            <Pressable onPress={() => handleSelectMapObject(item)}>
-              <Image
-                source={item}
-                style={{ width: 50, height: 50, margin: 5 }}
-                resizeMode="contain"
-              />
-            </Pressable>
-          )}
+    <Dialog modal open={isModalVisible} onOpenChange={() => setIsModalVisible(!isModalVisible)}>
+      <Dialog.Trigger asChild>
+        <Button
+          position="absolute"
+          bottom="$8"
+          right="$8"
+          backgroundColor={'#F194FF'}
+          color={'white'}
+          circular
+          size={50}
+          icon={Plus}
         />
-      </View>
-    </Modal>
+      </Dialog.Trigger>
+
+      <Adapt when="md" platform="touch">
+        <Sheet
+          animation="medium"
+          zIndex={200000}
+          modal
+          dismissOnSnapToBottom
+          portalProps={{ style: { width: '70%' } }}
+        >
+          <Sheet.Frame padding="$4" gap="$4">
+            <Adapt.Contents />
+          </Sheet.Frame>
+          <Sheet.Overlay
+            animation="lazy"
+            enterStyle={{ opacity: 0 }}
+            exitStyle={{ opacity: 0 }}
+            width="50%"
+          />
+        </Sheet>
+      </Adapt>
+
+      <Dialog.Portal>
+        <Dialog.Overlay
+          key="overlay"
+          animation="slow"
+          opacity={0.5}
+          enterStyle={{ opacity: 0 }}
+          exitStyle={{ opacity: 0 }}
+        />
+
+        <Dialog.Content
+          bordered
+          elevate
+          key="content"
+          animateOnly={['transform', 'opacity']}
+          animation={[
+            'quicker',
+            {
+              opacity: {
+                overshootClamping: true,
+              },
+            },
+          ]}
+          enterStyle={{ x: 0, y: 0, opacity: 0, scale: 0.9 }}
+          exitStyle={{ x: 0, y: 10, opacity: 0, scale: 0.95 }}
+          gap="$4"
+          width="70%"
+        >
+          <Dialog.Title>Select Map Objects</Dialog.Title>
+
+          <XStack gap="$2" flexWrap="wrap">
+            {tileImages.map((tileImage) => {
+              const id = uuid.v4().toString();
+              const mapObject = {
+                imageReference: tileImage,
+                x: x,
+                y: 0,
+              };
+              return (
+                <Pressable
+                  key={`selector-${id}`}
+                  onPress={() => handleSelectMapObject(id, mapObject)}
+                >
+                  <Image
+                    source={tileImage}
+                    style={{ width: 50, height: 50 }}
+                    resizeMode="contain"
+                  />
+                </Pressable>
+              );
+            })}
+          </XStack>
+
+          <Unspaced>
+            <Dialog.Close asChild>
+              <Button position="absolute" top="$3" right="$3" size="$2" circular icon={X} />
+            </Dialog.Close>
+          </Unspaced>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog>
   );
 }
-const styles = StyleSheet.create({
-  modalView: {
-    margin: 20,
-    backgroundColor: 'white',
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    paddingTop: 10,
-    paddingBottom: 50,
-    alignItems: 'center',
-    alignSelf: 'center',
-    marginVertical: 'auto',
-
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 5,
-      },
-      web: {
-        boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.25)',
-      },
-    }),
-  },
-
-  modalHeader: {
-    width: '100%',
-    position: 'relative',
-  },
-
-  modalTitle: {
-    flex: 1,
-    fontSize: 24,
-    marginTop: 15,
-    marginBottom: 30,
-    textAlign: 'center',
-  },
-
-  closeButton: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    zIndex: 1,
-  },
-});

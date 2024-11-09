@@ -2,17 +2,16 @@ import GridOverlay from '@/components/GridOverlay';
 import MapObjectSelectorModal from '@/components/MapObjectSelectorModal';
 import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
+import { config } from '@tamagui/config/v3';
+import { createTamagui, TamaguiProvider } from 'tamagui';
+import { MapObject } from '@/utils/types';
+
+const tamaguiConfig = createTamagui(config);
 
 interface Map {
   name: string;
   backgroundColor: string;
-}
-
-export interface MapObject {
-  imageUri: string;
-  x: number;
-  y: number;
 }
 
 export default function Index() {
@@ -28,8 +27,8 @@ export default function Index() {
   const renderMapObjects = () =>
     Object.entries(mapObjects).map(([id, mapObject]) => (
       <Image
-        key={id}
-        source={{ uri: mapObject.imageUri }}
+        key={`map-${id}`}
+        source={mapObject.imageReference}
         style={{
           width: 50,
           height: 50,
@@ -41,22 +40,20 @@ export default function Index() {
     ));
 
   return (
-    <View style={[styles.mapContainer, { backgroundColor: map?.backgroundColor || 'white' }]}>
-      <GridOverlay />
+    <TamaguiProvider config={tamaguiConfig}>
+      <View style={[styles.mapContainer, { backgroundColor: map?.backgroundColor || 'white' }]}>
+        <GridOverlay />
 
-      {renderMapObjects()}
+        {renderMapObjects()}
 
-      <MapObjectSelectorModal
-        isModalVisible={isModalVisible}
-        setIsModalVisible={setIsModalVisible}
-        mapObjects={mapObjects}
-        setMapObjects={setMapObjects}
-      />
-
-      <Pressable style={styles.floatingButton} onPress={() => setIsModalVisible(true)}>
-        <Text style={{ fontSize: 30, color: 'white' }}>+</Text>
-      </Pressable>
-    </View>
+        <MapObjectSelectorModal
+          isModalVisible={isModalVisible}
+          setIsModalVisible={setIsModalVisible}
+          mapObjects={mapObjects}
+          setMapObjects={setMapObjects}
+        />
+      </View>
+    </TamaguiProvider>
   );
 }
 
