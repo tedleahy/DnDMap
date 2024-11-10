@@ -1,10 +1,10 @@
 import { MapObject } from '@/utils/types';
-import { tileImages } from '@/utils/tileImages';
+import mapAssets from '@/utils/mapAssets';
 import { Pressable, Image } from 'react-native';
 import uuid from 'react-native-uuid';
 import { useState } from 'react';
 import { X, Plus } from '@tamagui/lucide-icons';
-import { Adapt, Button, Dialog, Sheet, Unspaced, XStack } from 'tamagui';
+import { Adapt, Button, Dialog, Sheet, Tabs, Unspaced, XStack } from 'tamagui';
 
 type Props = {
   isModalVisible: boolean;
@@ -87,13 +87,17 @@ export default function MapObjectSelectorModal({
           gap="$4"
           width="70%"
         >
-          <Dialog.Title>Select Map Objects</Dialog.Title>
+          <Dialog.Title size="$8" alignSelf="center">
+            Select Map Objects
+          </Dialog.Title>
+
+          {/* <Tabs defaultValue='' */}
 
           <XStack gap="$2" flexWrap="wrap">
-            {tileImages.map((tileImage) => {
+            {mapAssets.tiles.map((tileAsset) => {
               const id = uuid.v4().toString();
               const mapObject = {
-                imageReference: tileImage,
+                imageReference: tileAsset,
                 x: x,
                 y: 0,
               };
@@ -103,7 +107,7 @@ export default function MapObjectSelectorModal({
                   onPress={() => handleSelectMapObject(id, mapObject)}
                 >
                   <Image
-                    source={tileImage}
+                    source={tileAsset}
                     style={{ width: 50, height: 50 }}
                     resizeMode="contain"
                   />

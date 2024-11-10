@@ -1,5 +1,4 @@
 import { MapObject } from '@/utils/types';
-import { Image } from 'expo-image';
 import {
   Gesture,
   GestureDetector,

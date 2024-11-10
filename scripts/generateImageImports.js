@@ -1,19 +1,31 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('fs')
+const path = require('path')
 
-const imageDir = path.join(__dirname, '..', 'assets', 'images', 'tiles');
-const outputFile = path.join(__dirname, '..', 'utils', 'tileImages.ts');
+const outputFile = path.join(__dirname, '..', 'utils', 'mapAssets.ts')
 
-const imageFiles = fs.readdirSync(imageDir).filter(file => 
-  file.endsWith('.png') || file.endsWith('.jpg') || file.endsWith('.jpeg')
-);
+const imageDirs = fs.readdirSync(path.join(__dirname, '..', 'assets', 'images', 'maps'))
 
-const imports = imageFiles.map((file) => 
-  `  require('@/assets/images/tiles/${file}'),`
-).join('\n');
+let imagesCount = 0
+let fileContent = `const mapAssets: Record<string, number[]> = {\n`
 
-const fileContent = `export const tileImages: number[] = [\n${imports}\n];`;
+for (const dir of imageDirs) {
+  const dirPath = path.join(__dirname, '..', 'assets', 'images', 'maps', dir)
 
-fs.writeFileSync(outputFile, fileContent);
+  fileContent += `  ${dir}: [\n`
 
-console.log(`Generated ${outputFile} with ${imageFiles.length} images.`);
+  fileContent += fs.readdirSync(dirPath)
+    .filter(file => file.endsWith('.png'))
+    .map(file => {
+      imagesCount++
+      return `    require('@/assets/images/maps/${dir}/${file}'),`
+    })
+    .join('\n')
+
+  fileContent += '\n  ],\n'
+}
+
+fileContent += '};\n\nexport default mapAssets;'
+
+fs.writeFileSync(outputFile, fileContent)
+
+console.log(`Generated ${outputFile} with ${imagesCount} images.`)
