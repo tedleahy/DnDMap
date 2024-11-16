@@ -1,4 +1,5 @@
 import { MapObject } from '@/utils/types';
+import { useEffect } from 'react';
 import {
   Gesture,
   GestureDetector,
@@ -6,7 +7,7 @@ import {
   PanGestureChangeEventPayload,
   PanGestureHandlerEventPayload,
 } from 'react-native-gesture-handler';
-import Animated, { runOnJS, useSharedValue } from 'react-native-reanimated';
+import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 type Props = {
   id: string;
@@ -20,22 +21,49 @@ type GestUpdateEvent = GestureUpdateEvent<
 >;
 
 export default function DraggableMapObject({ id, mapObject, onDragEnd }: Props) {
-  const translateX = useSharedValue(mapObject.x);
-  const translateY = useSharedValue(mapObject.y);
+  const isDragging = useSharedValue(false);
+  const translation = useSharedValue({ x: 0, y: 0 });
+
+  useEffect(() => {
+    translation.value = { x: 0, y: 0 };
+  }, [mapObject.x, mapObject.y]);
+
+  const animatedStyles = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translation.value.x },
+      { translateY: translation.value.y },
+    ],
+    zIndex: isDragging.value ? 1 : 0,
+  }));
 
   const drag = Gesture.Pan()
+    .onStart(() => {
+      isDragging.value = true;
+    })
     .onChange((event: GestUpdateEvent) => {
-      translateX.value += event.changeX;
-      translateY.value += event.changeY;
+      translation.value = {
+        x: translation.value.x + event.changeX,
+        y: translation.value.y + event.changeY,
+      };
     })
     .onFinalize(() => {
-      runOnJS(onDragEnd)(id, translateX.value, translateY.value);
+      isDragging.value = false;
+      const finalX = mapObject.x + translation.value.x;
+      const finalY = mapObject.y + translation.value.y;
+      runOnJS(onDragEnd)(id, finalX, finalY);
     });
 
   return (
     <GestureDetector gesture={drag}>
       <Animated.View
-        style={{ transform: [{ translateX: translateX }, { translateY: translateY }] }}
+        style={[
+          {
+            position: 'absolute',
+            left: mapObject.x,
+            top: mapObject.y,
+          },
+          animatedStyles,
+        ]}
       >
         <Animated.Image
           key={`map-${id}`}
