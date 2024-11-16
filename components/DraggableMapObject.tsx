@@ -8,6 +8,7 @@ import {
   PanGestureHandlerEventPayload,
 } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { GRID_SIZE } from './GridOverlay';
 
 type Props = {
   id: string;
@@ -48,8 +49,11 @@ export default function DraggableMapObject({ id, mapObject, onDragEnd }: Props) 
     })
     .onFinalize(() => {
       isDragging.value = false;
-      const finalX = mapObject.x + translation.value.x;
-      const finalY = mapObject.y + translation.value.y;
+
+      const snapToGrid = (value: number) => Math.round(value / GRID_SIZE) * GRID_SIZE;
+      const finalX = snapToGrid(mapObject.x + translation.value.x);
+      const finalY = snapToGrid(mapObject.y + translation.value.y);
+
       runOnJS(onDragEnd)(id, finalX, finalY);
     });
 
