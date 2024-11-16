@@ -4,7 +4,8 @@ import { Pressable, Image } from 'react-native';
 import uuid from 'react-native-uuid';
 import { useState } from 'react';
 import { X, Plus } from '@tamagui/lucide-icons';
-import { Adapt, Button, Dialog, Sheet, Tabs, Unspaced, XStack } from 'tamagui';
+import { Adapt, Button, Dialog, Sheet, SizableText, Tabs, Unspaced, XStack, YStack } from 'tamagui';
+import { capitaliseFirstLetter } from '@/utils/strings';
 
 type Props = {
   isModalVisible: boolean;
@@ -24,6 +25,7 @@ export default function MapObjectSelectorModal({
     setX(x + 50);
     setMapObjects({ ...mapObjects, [id]: mapObject });
   };
+  const tabNames = Object.keys(mapAssets);
 
   return (
     <Dialog modal open={isModalVisible} onOpenChange={() => setIsModalVisible(!isModalVisible)}>
@@ -91,30 +93,45 @@ export default function MapObjectSelectorModal({
             Select Map Objects
           </Dialog.Title>
 
-          {/* <Tabs defaultValue='' */}
+          <Tabs defaultValue={tabNames[0]}>
+            <YStack gap="$5">
+              <Tabs.List>
+                {Object.keys(mapAssets).map((tabName) => (
+                  <Tabs.Tab key={tabName} value={tabName}>
+                    <SizableText>{capitaliseFirstLetter(tabName)}</SizableText>
+                  </Tabs.Tab>
+                ))}
+              </Tabs.List>
 
-          <XStack gap="$2" flexWrap="wrap">
-            {mapAssets.tiles.map((tileAsset) => {
-              const id = uuid.v4().toString();
-              const mapObject = {
-                imageReference: tileAsset,
-                x: x,
-                y: 0,
-              };
-              return (
-                <Pressable
-                  key={`selector-${id}`}
-                  onPress={() => handleSelectMapObject(id, mapObject)}
-                >
-                  <Image
-                    source={tileAsset}
-                    style={{ width: 50, height: 50 }}
-                    resizeMode="contain"
-                  />
-                </Pressable>
-              );
-            })}
-          </XStack>
+              {Object.entries(mapAssets).map(([tabName, tabAssets]) => (
+                <Tabs.Content key={tabName} value={tabName}>
+                  <XStack gap="$2" flexWrap="wrap">
+                    {tabAssets.map((asset) => {
+                      const id = uuid.v4().toString();
+                      const mapObject = {
+                        imageReference: asset,
+                        x: x,
+                        y: 0,
+                      };
+
+                      return (
+                        <Pressable
+                          key={`selector-${id}`}
+                          onPress={() => handleSelectMapObject(id, mapObject)}
+                        >
+                          <Image
+                            source={asset}
+                            style={{ width: 50, height: 50 }}
+                            resizeMode="contain"
+                          />
+                        </Pressable>
+                      );
+                    })}
+                  </XStack>
+                </Tabs.Content>
+              ))}
+            </YStack>
+          </Tabs>
 
           <Unspaced>
             <Dialog.Close asChild>
