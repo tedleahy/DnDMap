@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import Svg, { Line, G } from 'react-native-svg';
 
-const gridSize = 50;
-const lineColor = '#333';
-const opacity = 0.2;
+export const GRID_SIZE = 50;
+const LINE_COLOR = '#333';
+const OPACITY = 0.2;
 
 export default function GridOverlay() {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -15,31 +15,31 @@ export default function GridOverlay() {
     setDimensions({ width, height });
   };
 
-  const horizontalLinesCount = Math.floor(dimensions.height / gridSize);
+  const horizontalLinesCount = Math.floor(dimensions.height / GRID_SIZE);
   const horizontalLines = Array.from({ length: horizontalLinesCount + 1 }, (_, i) => (
     <Line
       key={'x-' + i}
       x1="0"
-      y1={i * gridSize}
+      y1={i * GRID_SIZE}
       x2="100%"
-      y2={i * gridSize}
-      stroke={lineColor}
+      y2={i * GRID_SIZE}
+      stroke={LINE_COLOR}
       strokeWidth={1}
-      opacity={opacity}
+      opacity={OPACITY}
     />
   ));
 
-  const verticalLinesCount = Math.floor(dimensions.width / gridSize);
+  const verticalLinesCount = Math.floor(dimensions.width / GRID_SIZE);
   const verticalLines = Array.from({ length: verticalLinesCount + 1 }, (_, i) => (
     <Line
       key={'y-' + i}
-      x1={i * gridSize}
+      x1={i * GRID_SIZE}
       y1="0"
-      x2={i * gridSize}
+      x2={i * GRID_SIZE}
       y2="100%"
-      stroke={lineColor}
+      stroke={LINE_COLOR}
       strokeWidth={1}
-      opacity={opacity}
+      opacity={OPACITY}
     />
   ));
 
